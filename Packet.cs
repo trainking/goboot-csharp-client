@@ -46,12 +46,17 @@ namespace goboot_csharp_client
             buff = new byte[b.Length+4];
 
             // body长度复制
-            byte[] lenB = BitConverter.GetBytes((ushort)IPAddress.HostToNetworkOrder(b.Length));
+            byte[] lenB = BitConverter.GetBytes((ushort)b.Length);
+            // 反转成大端序
+            Array.Reverse(lenB);
             Array.Copy(lenB, 0, buff, 0, lenB.Length);
 
             // opcode复制进去
-            byte[] opcodB = BitConverter.GetBytes((ushort)IPAddress.HostToNetworkOrder(opcode));
-            Array.Copy(opcodB, 0, buff, 2,opcodB.Length);
+            byte[] opcodeB = BitConverter.GetBytes((ushort)opcode);
+            // 反转成大端序
+            Array.Reverse(opcodeB);
+
+            Array.Copy(opcodeB, 0, buff, 2, opcodeB.Length);
 
             if (b.Length > 0)
             {
@@ -79,7 +84,12 @@ namespace goboot_csharp_client
         public DefaultPacket(NetworkStream stream)
         {
             byte[] head = new byte[4];
-            int bytesRead = stream.Read(head, 0, head.Length);
+            int bytesRead = 0;
+
+            while(bytesRead < head.Length)
+            {
+                bytesRead = stream.Read(head, 0, head.Length);
+            }
             ushort bodyLen = (ushort)IPAddress.NetworkToHostOrder((short)BitConverter.ToUInt16(head, 0));
             ushort opCode = (ushort)IPAddress.NetworkToHostOrder((short)BitConverter.ToUInt16(head, 2));
 
@@ -89,7 +99,11 @@ namespace goboot_csharp_client
 
             if (bodyLen > 0)
             {
-                stream.Read(buff, 4, bodyLen);
+                bytesRead = 0;
+                while(bytesRead < bodyLen)
+                {
+                    bytesRead = stream.Read(buff, 4, bodyLen);
+                }
             }
         }
 

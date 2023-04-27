@@ -51,7 +51,9 @@ namespace goboot_csharp_client
                     conn.WritePacket(new DefaultPacket(0));
                     await Task.Delay(TimeSpan.FromSeconds(heart), closeToken.Token);
                 }
+                Console.WriteLine(closeToken.IsCancellationRequested);
             });
+
         }
 
         /// <summary>
@@ -64,6 +66,10 @@ namespace goboot_csharp_client
                 while (!closeToken.IsCancellationRequested)
                 {
                     var packet = conn.ReadPacket();
+                   if (packet.OpCode() == 0)
+                    {
+                        throw new Exception("close network.");
+                    }
                     if (handler!= null)
                     {
                         handler(packet.OpCode(), packet.Body());
@@ -77,11 +83,11 @@ namespace goboot_csharp_client
         /// <summary>
         /// 发送消息
         /// </summary>
-        /// <param name="opcde"></param>
+        /// <param name="opcode"></param>
         /// <param name="msg"></param>
-        public void Send(ushort opcde, byte[] msg)
+        public void Send(ushort opcode, byte[] msg)
         {
-            var p = new DefaultPacket(msg, opcde);
+            var p = new DefaultPacket(msg, opcode);
             conn.WritePacket(p);
         }
 
