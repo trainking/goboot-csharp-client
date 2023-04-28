@@ -1,6 +1,9 @@
-﻿using System;
+﻿using SuperSocket.ClientEngine;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
@@ -11,42 +14,43 @@ namespace goboot_csharp_client
     public class TcpNetConn : NetConn
     {
 
-        private TcpClient client;
+        private EasyClient client;
         private NetConfig config;
-        private NetworkStream stream;
         
-        public TcpNetConn(NetConfig c) 
+        public TcpNetConn(NetConfig c, Action<Packet> handler) 
         {
             config = c;
-            var _addrA = c.Addr.Split(':');
-            if ( _addrA.Length == 2 )
-            {
-                client = new TcpClient(_addrA[0], int.Parse(_addrA[1]));
-            }else{
-                throw new Exception("address not is <host>:<port>");
-            }
-
-            stream = client.GetStream();
+            client = new EasyClient();
+            client.Initialize(new PacketReceiveFilter(4), handler);
+            
         }
 
+        public async Task Connect()
+        {
+            var _addrA = config.Addr.Split(':');
+            await client.ConnectAsync(new IPEndPoint(IPAddress.Parse(_addrA[0]), int.Parse(_addrA[1])));
+        }
+
+        public async Task WritePacket(Packet packet)
+        {
+            if (!client.IsConnected)
+            {
+                await this.Connect();
+            }
+            if (client.IsConnected)
+            {
+                client.Send(packet.Serialize());
+                await Task.Delay(1);
+            } else
+            {
+                Console.WriteLine("连接失败!");
+            }
+            
+        }
 
         public void Close()
         {
-            stream.Close();
             client.Close();
-        }
-
-        public Packet ReadPacket()
-        {            
-            return new DefaultPacket(stream);
-        }
-
-        public void WritePacket(Packet packet)
-        {
-            if (client.Connected)
-            {
-                stream.Write(packet.Serialize(), 0, packet.Serialize().Length);
-            }  
         }
     }
 }

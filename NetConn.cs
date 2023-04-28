@@ -13,16 +13,16 @@ namespace goboot_csharp_client
     public interface NetConn
     {
         /// <summary>
-        /// 读取包
+        /// 连接服务
         /// </summary>
         /// <returns></returns>
-        public Packet ReadPacket();
+        public Task Connect();
 
         /// <summary>
         /// 写入包
         /// </summary>
         /// <param name="packet"></param>
-        public void WritePacket(Packet packet);
+        public Task WritePacket(Packet packet);
 
         /// <summary>
         /// 关闭连接
