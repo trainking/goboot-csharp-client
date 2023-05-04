@@ -1,5 +1,4 @@
-﻿using SuperSocket.ProtoBase;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace goboot_csharp_client
 {
-    public interface Packet : IPackageInfo
+    public interface Packet 
     {
         /// <summary>
         /// 序列化消息输出

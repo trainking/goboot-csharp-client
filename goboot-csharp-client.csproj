@@ -7,9 +7,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="SuperSocket.ClientEngine" Version="0.10.0" />
-    <PackageReference Include="SuperSocket.ProtoBase" Version="1.7.0.17" />
-  </ItemGroup>
-
 </Project>

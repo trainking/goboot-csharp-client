@@ -1,10 +1,8 @@
-﻿using SuperSocket.ClientEngine;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SuperSocket.ProtoBase;
 using System.Net.WebSockets;
 using System.Diagnostics;
 
@@ -13,24 +11,22 @@ namespace goboot_csharp_client
     public class WebSocketConn : NetConn
     {
         private ClientWebSocket client;
-        private NetConfig config;
         private CancellationTokenSource closeToken;
         private Action<Packet> handle;
         private bool IsCoonected;
 
 
-        public WebSocketConn(NetConfig c, Action<Packet> handler)
+        public WebSocketConn(Action<Packet> handler)
         {
-            config = c;
             client = new ClientWebSocket();
             closeToken = new CancellationTokenSource();
             closeToken.CancelAfter(TimeSpan.FromSeconds(30));
             handle = handler;
         }
 
-        public async Task Connect()
+        public async Task Connect(string addr)
         {
-            var uri = new Uri($"ws://{config.Addr}{config.WebSocketPath}");
+            var uri = new Uri(addr);
             await client.ConnectAsync(uri, closeToken.Token);
         }
 
@@ -74,11 +70,10 @@ namespace goboot_csharp_client
 
         public async Task WritePacket(Packet packet)
         {
-            if (!this.IsCoonected)
-            {
-                await this.Connect();
-                this.IsCoonected= true;
-            }
+            //if (!this.IsCoonected)
+            //{
+            //    this.IsCoonected= true;
+            //}
 
             if (!closeToken.Token.IsCancellationRequested)
             {

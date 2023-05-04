@@ -16,7 +16,7 @@ namespace goboot_csharp_client
         /// 连接服务
         /// </summary>
         /// <returns></returns>
-        public Task Connect();
+        public Task Connect(string addr);
 
         /// <summary>
         /// 写入包

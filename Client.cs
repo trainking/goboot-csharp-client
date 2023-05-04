@@ -8,13 +8,6 @@ namespace goboot_csharp_client
 
     public class Client
     {
-        public static Client ClientFactory(string network, NetConfig config, Action<Packet> h)
-        {
-            var client = new Client(network, config, h);
-            // 心跳
-            client.KeepAlive(3);
-            return client;
-        }
 
         private NetConn conn;
         private NetConfig config;
@@ -24,14 +17,14 @@ namespace goboot_csharp_client
         /// </summary>
         private CancellationTokenSource closeToken;
 
-        public Client(string network, NetConfig config, Action<Packet> h)
+        public Client(string network, Action<Packet> h)
         {
              switch(network) {
                 case "tcp":
-                    conn = new TcpNetConn(config, h);
+                    conn = new TcpNetConn(h);
                     break;
                 case "websocket":
-                    conn = new WebSocketConn(config, h);
+                    conn = new WebSocketConn(h);
                     break;
                 default:
                     throw new Exception("no implement protocol");
@@ -39,6 +32,15 @@ namespace goboot_csharp_client
 
             closeToken = new CancellationTokenSource();
 
+        }
+
+        /// <summary>
+        /// 建立连接
+        /// </summary>
+        /// <param name="addr"></param>
+        public void Connect(string addr)
+        {
+            this.conn.Connect(addr);
         }
 
         /// <summary>
@@ -74,6 +76,7 @@ namespace goboot_csharp_client
         /// </summary>
         public void Close()
         {
+            conn.Close();
             closeToken.Cancel();
         }
     }
