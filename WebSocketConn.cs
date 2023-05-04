@@ -13,7 +13,6 @@ namespace goboot_csharp_client
         private ClientWebSocket client;
         private CancellationTokenSource closeToken;
         private Action<Packet> handle;
-        private bool IsCoonected;
 
 
         public WebSocketConn(Action<Packet> handler)
@@ -28,6 +27,9 @@ namespace goboot_csharp_client
         {
             var uri = new Uri(addr);
             await client.ConnectAsync(uri, closeToken.Token);
+
+            // 开启消费消息
+            onReceive();
         }
 
         private void onReceive()
@@ -70,11 +72,6 @@ namespace goboot_csharp_client
 
         public async Task WritePacket(Packet packet)
         {
-            //if (!this.IsCoonected)
-            //{
-            //    this.IsCoonected= true;
-            //}
-
             if (!closeToken.Token.IsCancellationRequested)
             {
                 ArraySegment<byte> message = new ArraySegment<byte>(packet.Serialize());

@@ -40,7 +40,8 @@ namespace goboot_csharp_client
         /// <param name="addr"></param>
         public void Connect(string addr)
         {
-            this.conn.Connect(addr);
+            var task = this.conn.Connect(addr);
+            task.Wait();
         }
 
         /// <summary>
