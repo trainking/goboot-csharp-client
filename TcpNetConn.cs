@@ -59,11 +59,10 @@ namespace goboot_csharp_client
                             byte[] body = new byte[head.bodyLen];
                             stream.Read(body, 0, body.Length);
                             p.WriteBody(body);
-
-
-                            // 处理数据
-                            this.handle(p);
                         }
+
+                        // 处理数据
+                        this.handle(p);
                     }
                 }
             });

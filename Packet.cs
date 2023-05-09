@@ -54,8 +54,12 @@ namespace goboot_csharp_client
 
         public Head(byte[] b)
         {
-            opcode = (ushort)IPAddress.NetworkToHostOrder((short)BitConverter.ToUInt16(b, 0));
-            bodyLen = (ushort)IPAddress.NetworkToHostOrder((short)BitConverter.ToUInt16(b, 2));
+            byte[] bodyB = new byte[2];
+            Array.Copy(b, 0, bodyB, 0, 2);
+            bodyLen = BitConverter.ToUInt16(bodyB.Reverse().ToArray(), 0);
+            byte[] opcodeB = new byte[2];
+            Array.Copy(b, 2, opcodeB, 0, 2);
+            opcode = BitConverter.ToUInt16(opcodeB.Reverse().ToArray(), 0);
         }
     }
 
