@@ -35,13 +35,13 @@ namespace goboot_csharp_client
             await client.ConnectAsync(new IPEndPoint(IPAddress.Parse(_addrA[0]), int.Parse(_addrA[1])));
 
             // 开启消费消息
-            onReceive();
+            OnReceive();
         }
 
         /// <summary>
         /// 消息消费
         /// </summary>
-        private void onReceive()
+        private void OnReceive()
         {
             Task.Run(() =>
             {
@@ -75,10 +75,13 @@ namespace goboot_csharp_client
         /// <returns></returns>
         public async Task WritePacket(Packet packet)
         {
-            var data = packet.Serialize();
-            NetworkStream stream = client.GetStream();
-            stream.Write(packet.Serialize(), 0, data.Length);
-            await Task.Delay(1);
+            if (!this.isClose)
+            {
+                var data = packet.Serialize();
+                NetworkStream stream = client.GetStream();
+                stream.Write(packet.Serialize(), 0, data.Length);
+                await Task.Delay(1);
+            }
         }
 
         /// <summary>

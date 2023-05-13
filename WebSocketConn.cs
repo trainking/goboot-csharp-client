@@ -29,10 +29,10 @@ namespace goboot_csharp_client
             await client.ConnectAsync(uri, closeToken.Token);
 
             // 开启消费消息
-            onReceive();
+            OnReceive();
         }
 
-        private void onReceive()
+        private void OnReceive()
         {
             Task.Run(async () =>
             {

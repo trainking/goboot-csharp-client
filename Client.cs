@@ -23,6 +23,9 @@ namespace goboot_csharp_client
                 case "tcp":
                     conn = new TcpNetConn(h);
                     break;
+                case "kcp":
+                    conn = new KcpNetConn(h);
+                    break;
                 case "websocket":
                     conn = new WebSocketConn(h);
                     break;
