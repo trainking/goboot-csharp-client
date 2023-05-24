@@ -7,12 +7,13 @@ using System.Net.Sockets.Kcp;
 using System.Net.Sockets.Kcp.Simple;
 using System.Threading.Tasks;
 using System.Net;
+using System.Threading.Tasks.Dataflow;
 
 namespace goboot_csharp_client
 {
     public class KcpNetConn : NetConn
     {
-        private SimpleKcpClient client = null;
+        private SimpleKcpClient client;
         private Action<Packet> handle;
         private bool isClose;
 
@@ -41,6 +42,8 @@ namespace goboot_csharp_client
                     client.kcp.Update(DateTimeOffset.UtcNow);
                     await Task.Delay(10);
                 }
+
+                client.kcp.Dispose();
             });
         }
 
@@ -48,13 +51,13 @@ namespace goboot_csharp_client
         {
             Task.Run(async () =>
             {
-                while(!this.isClose)
+                while (!this.isClose)
                 {
                     byte[] headB = new byte[4];
 
                     var bytes = await client.ReceiveAsync();
-                    
-                    if (bytes.Length > 0 )
+
+                    if (bytes.Length > 0)
                     {
                         var head = new Head(bytes[0..4]);
                         var p = new DefaultPacket(head.bodyLen, head.opcode);

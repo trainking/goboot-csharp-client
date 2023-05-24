@@ -15,11 +15,12 @@ namespace goboot_csharp_client
         /// <summary>
         /// 关闭时的取消请求
         /// </summary>
-        private CancellationTokenSource closeToken;
+        private bool isClose;
 
         public Client(string network, Action<Packet> h)
         {
-             switch(network) {
+            switch (network)
+            {
                 case "tcp":
                     conn = new TcpNetConn(h);
                     break;
@@ -32,35 +33,36 @@ namespace goboot_csharp_client
                 default:
                     throw new Exception("no implement protocol");
             }
-
-            closeToken = new CancellationTokenSource();
-
         }
 
         /// <summary>
         /// 建立连接
         /// </summary>
         /// <param name="addr"></param>
-        public void Connect(string addr)
+        public async void Connect(string addr)
         {
-            var task = this.conn.Connect(addr);
-            task.Wait();
+            if (isClose)
+            {
+                isClose = false;
+            }
+            await conn.Connect(addr);
         }
 
         /// <summary>
         /// 保持连接的心跳
         /// </summary>
         /// <param name="heart"></param>
-        public void KeepAlive(int heart)
+        public async void KeepAlive(int heart)
         {
-            Task.Run(async () =>
+            await Task.Run(async () =>
             {
-                while(!closeToken.IsCancellationRequested)
+                while (!isClose)
                 {
                     await conn.WritePacket(new DefaultPacket(0));
-                    await Task.Delay(TimeSpan.FromSeconds(heart), closeToken.Token);
+                    await Task.Delay(TimeSpan.FromSeconds(heart));
                 }
             });
+
         }
 
         /// <summary>
@@ -81,7 +83,7 @@ namespace goboot_csharp_client
         public void Close()
         {
             conn.Close();
-            closeToken.Cancel();
+            isClose = true;
         }
     }
 }
