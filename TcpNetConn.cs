@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -19,7 +20,7 @@ namespace goboot_csharp_client
 
         public TcpNetConn(Action<Packet> handler) 
         {
-            client = new TcpClient();
+            client = new TcpClient(new IPEndPoint(IPAddress.Any, 0));
             this.handle = handler;
             
         }
@@ -32,7 +33,8 @@ namespace goboot_csharp_client
         public async Task Connect(string addr)
         {
             var _addrA = addr.Split(':');
-            await client.ConnectAsync(new IPEndPoint(IPAddress.Parse(_addrA[0]), int.Parse(_addrA[1])));
+            //await client.ConnectAsync(new IPEndPoint(IPAddress.Parse(_addrA[0]), int.Parse(_addrA[1])));
+            client.Connect(new IPEndPoint(IPAddress.Parse(_addrA[0]), int.Parse(_addrA[1])));
 
             // 开启消费消息
             OnReceive();
@@ -79,6 +81,7 @@ namespace goboot_csharp_client
             {
                 var data = packet.Serialize();
                 NetworkStream stream = client.GetStream();
+                Debug.WriteLine($"WritePacket {packet.OpCode()}");
                 stream.Write(packet.Serialize(), 0, data.Length);
                 await Task.Delay(1);
             }
